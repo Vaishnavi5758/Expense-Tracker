@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+   
+    <link rel="stylesheet" href="./expense.css">
+      </script>
+    
+</head>
+<body>
+    <h2>C.A.T.C.H</h2>
+    <div class="welcomeName"></div>
+    <h2>Welcome, <span id="userName"></span>!</h2>
+
+    <div class="navbar">
+      <h6 id="premiumuser"></h6>
+        <a href="#contactUs">Contact Us</a>
+        <button  id="premiumbutton">Buy Premium</button>
+        <div class="right">
+          <div class="leaderboard-container">
+            <button class="leaderboard-btn" id="leaderboardBtn">Leaderboard</button>
+            <div class="user-list" id="userList">
+              <!-- Users will appear here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <div id="totals">
+        <h2>Total Expense: <span id="totalExpense">0</span></h2>
+        <h2>Total Income: <span id="totalIncome">0</span></h2>
+    </div>
+
+    <div id = "anchor">
+       <a href="./dailyExpense.html">Daily Expense</a>
+       <a href="./monthlyExpense.html">Monthly Expense</a>
+       <a href="./yearlyExpense.html">Yearly Expense</a>
+    </div>
+
+    <form id="amountForm" onsubmit="submitForm(event)">
+        <label for="amount">Amount:</label>
+        <input type="text" id="amount" name="amount" required>
+
+        <label for="description">Description:</label>
+        <input type="text" id="description" name="description" required>
+
+        <div class="radio-group">
+            <input type="radio" id="expense" name="type" value="expense" checked>
+            <label for="expense">Expense</label>
+
+            <input type="radio" id="income" name="type" value="income">
+            <label for="income">Income</label>
+        </div>
+        
+        <button type="submit">Add</button>
+    </form>
+
+      
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+
+            
+    <!-- <ul id="leaderboardlist"> -->
+        <div class="list-container">
+         
+            
+              <div class="daily-expenses">
+                <div class="table">
+                <table id="leaderboardtable" class="table"> 
+                    <h2>Leaderboard</h2>                     
+                        <th>Ranking</th>
+                        <th>Total Expenses</th>
+                        <th>Name</th>    
+                  </table>
+              </div>
+              
+            </div>
+
+        </div>
+        
+    
+
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="./expense.js">   </script>
+ 
+    
+   </body>
+</html>
+
