@@ -68,32 +68,24 @@
 
         // Function to populate the table with data
         function populateTable(data) {
-            var tableBody = document.getElementById('expenseTableBody');
-
-            data.forEach(function (item) {
-                var row = document.createElement('tr');
-
-                // Add date cell
-                var dateCell = document.createElement('td');
-                dateCell.textContent = item.createdAt; 
-                row.appendChild(dateCell);
-
-
-                var amountCell = document.createElement('td');
-                amountCell.textContent = item.amount;
-                row.appendChild(amountCell);
-
-                var descriptionCell = document.createElement('td');
-                descriptionCell.textContent = item.description;
-                row.appendChild(descriptionCell);
-
-                var typeCell = document.createElement('td');
-                typeCell.textContent = item.type;
-                row.appendChild(typeCell);
-
-                tableBody.appendChild(row);
-            });
-        }
+    const tableBody = document.getElementById('expenseTableBody');
+    tableBody.innerHTML = ''; // Clear previous data
+    
+    if (Array.isArray(data.expenses)) { // Check if data.expenses is an array
+        data.expenses.forEach(expense => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${expense.id}</td>
+                <td>${expense.description}</td>
+                <td>${expense.amount}</td>
+                <td>${expense.createdAt}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    } else {
+        console.error('Expenses data is not an array:', data.expenses);
+    }
+}
 
         function calculateTotal(data) {
     if (Array.isArray(data)) {

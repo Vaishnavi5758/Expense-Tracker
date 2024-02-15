@@ -30,6 +30,15 @@
         th {
             background-color: #f2f2f2;
         }
+
+        .pagination {
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            margin-right: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -45,19 +54,34 @@
                 <th>Type</th>
             </tr>
         </thead>
-        <button class="add-button" id="downloadBtn">Download File</button>
         <tbody id="expenseTableBody"></tbody>
     </table>
+
+    <!-- Pagination buttons -->
+    <div class="pagination">
+        <span id="firstPageBtn" class="page-number"></span>
+        <button id="prevPageBtn">Previous</button>
+        <span id="pageInfo"></span>
+        <button id="nextPageBtn">Next</button>
+        <span id="lastPageBtn" class="page-number"></span>
+    </div>
+
     <div id="totalExpense"></div>
+
     <script>
-        // Function to make a GET request using Axios
         const token = localStorage.getItem('token');
-        function getDailyExpense() {
-            axios.get('http://localhost:3000/getMonthlyExpense',{headers: {"Authorization": token}})
+        // Get the screen width
+const screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+
+
+        // Function to make a GET request using Axios
+        function getMonthlyExpense(page, limit) {
+            axios.get(`http://localhost:3000/getMonthlyExpense?page=${page}&limit=${limit}`, { headers: { "Authorization": token, "Screen-Width": screenWidth  } })
                 .then(function (response) {
                     console.log('Data:', response.data);
                     populateTable(response.data);
                     calculateTotal(response.data);
+                    renderPagination(response.data.pagination);
                 })
                 .catch(function (error) {
                     console.error('Error:', error);
@@ -66,94 +90,90 @@
 
         // Function to populate the table with data
         function populateTable(data) {
-            var tableBody = document.getElementById('expenseTableBody');
-
-            data.forEach(function (item) {
-                var row = document.createElement('tr');
-
-                var dateCell = document.createElement('td');
-                dateCell.textContent = item.createdAt; 
-                row.appendChild(dateCell);
-
-
-                var amountCell = document.createElement('td');
-                amountCell.textContent = item.amount;
-                row.appendChild(amountCell);
-
-                var descriptionCell = document.createElement('td');
-                descriptionCell.textContent = item.description;
-                row.appendChild(descriptionCell);
-
-                var typeCell = document.createElement('td');
-                typeCell.textContent = item.type;
-                row.appendChild(typeCell);
-
+            const tableBody = document.getElementById('expenseTableBody');
+            tableBody.innerHTML = ''; // Clear previous data
+    
+            data.expenses.forEach(expense => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${expense.id}</td>
+                    <td>${expense.description}</td>
+                    <td>${expense.amount}</td>
+                    <td>${expense.createdAt}</td>
+                `;
                 tableBody.appendChild(row);
             });
         }
 
+        // Function to calculate total expense
         function calculateTotal(data) {
-    if (Array.isArray(data)) {
-        var totalExpense = data.reduce(function (total, item) {
-            return total + parseFloat(item.amount || 0); // Ensure to handle non-numeric values
-        }, 0);
+            if (Array.isArray(data)) {
+                var totalExpense = data.reduce(function (total, item) {
+                    return total + parseFloat(item.amount || 0); // Ensure to handle non-numeric values
+                }, 0);
 
-        var totalExpenseDisplay = document.getElementById('totalExpense');
-        totalExpenseDisplay.textContent = 'Total Expense: $' + totalExpense.toFixed(2);
-    } else {
-        console.error('Data is not an array.');
-    }
-}
+                var totalExpenseDisplay = document.getElementById('totalExpense');
+                totalExpenseDisplay.textContent = 'Total Expense: $' + totalExpense.toFixed(2);
+            } else {
+                console.error('Data is not an array.');
+            }
+        }
 
-        getDailyExpense();
+        // Function to render pagination buttons
+        function renderPagination(pagination) {
+            const firstPageBtn = document.getElementById('firstPageBtn');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const lastPageBtn = document.getElementById('lastPageBtn');
+            const pageInfo = document.getElementById('pageInfo');
 
-//         document.getElementById("downloadBtn").addEventListener("click", async () => {
-//   try {
-//     const response = await axios.get('http://localhost:3000/expense/download', {
-//       headers: {
-//         "Authorization": token,
-//         "Content-Type":"application/pdf"        
+            firstPageBtn.textContent = `First Page`;
+            lastPageBtn.textContent = `Last Page`;
+
+            prevPageBtn.disabled = pagination.currentPage === 1;
+            nextPageBtn.disabled = pagination.currentPage === pagination.totalPages;
+
+            prevPageBtn.addEventListener('click', () => {
+                getMonthlyExpense(pagination.currentPage - 1, calculateLimit());
+            });
+
+            nextPageBtn.addEventListener('click', () => {
+                getMonthlyExpense(pagination.currentPage + 1, calculateLimit());
+            });
+
+            pageInfo.textContent = `Page ${pagination.currentPage} of ${pagination.totalPages}`;
+
+            firstPageBtn.addEventListener('click', () => {
+                getMonthlyExpense(1, calculateLimit());
+            });
+
+            lastPageBtn.addEventListener('click', () => {
+                getMonthlyExpense(pagination.totalPages, calculateLimit());
+            });
+        }
+
+
         
 
-//       },
-//       responseType: 'arraybuffer' // Specify responseType as 'arraybuffer' to receive binary data
-//     });
+        // Function to calculate limit based on screen size
+        function calculateLimit() {
+        //    const screenWidth = window.innerWidth;
+            console.log('Screen Width:', screenWidth);
 
-//     // Create a blob from the response data
-//     const blob = new Blob([response.data], { type: 'application/pdf' });
-
-//     // Create a temporary link to trigger the download
-//     const url = window.URL.createObjectURL(blob);
-//     const link = document.createElement('a');
-//     link.href = url;
-//     link.setAttribute('download', 'report.pdf'); // Set the filename
-//     document.body.appendChild(link);
-
-//     // Trigger the download
-//     link.click();
-//   } catch (error) {
-//     console.error("Error downloading report:", error);
-//     // Handle error
-//   }
-// });
-
-        document.getElementById('downloadBtn').addEventListener('click', function download(){
-
-axios.get('http://localhost:3000/expense/download', {headers: {"Authorization": token}})
-      .then((response)=>{
-        console.log("RESPONSE", response)
-        if(response.status === 200){
-          //backend is sending a download link which on click opens new tab in browser and file starts downloading
-          const a = document.createElement('a');
-          a.href = response.data.fileUrl
-          a.download = `${response.data.filename}`;  //this will instruct browser to download the file named myexpense.csv
-          a.click();
-        }else{
-         console.log("Error downloading expense file, no response")
+            if (screenWidth >= 1200) {
+                return 10; // Large screens
+            } else if (screenWidth >= 700) {
+                return 5; // Medium screens
+            } else {
+                return 1; // Small screens
+            }
         }
-      })
-})
+       
+       
 
+        // Initial page load
+        getMonthlyExpense(1, calculateLimit());
+       
     </script>
 </body>
 </html>

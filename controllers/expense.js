@@ -114,7 +114,11 @@ exports.getDailyExpense = async (req, res) => {
         today.setHours(0, 0, 0, 0);
 
         const userId = req.user.id; 
-        const dailyExpenses = await Expense.findAll({
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 1;
+        const offset = (page - 1) * limit;
+
+        const { count, rows } = await Expense.findAndCountAll({
             where: {
                 userId, // Filter by user ID
                 type: 'expense',
@@ -122,23 +126,55 @@ exports.getDailyExpense = async (req, res) => {
                     [Op.gte]: today,
                 },
             },
+            limit: limit,
+            offset: offset
         });
 
-        res.json(dailyExpenses);
+        const totalPages = Math.ceil(count / limit);
+
+        res.json({
+            expenses: rows,
+            pagination: {
+                totalExpenses: count,
+                totalPages: totalPages,
+                currentPage: page
+            }
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'An error occurred while fetching daily expenses' });
     }
 }
 
-exports.getMonthlyExpense = async (req, res) => {
 
+exports.getMonthlyExpense = async (req, res) => {
     try {
         const thisMonth = new Date();
         thisMonth.setDate(1);
         thisMonth.setHours(0, 0, 0, 0);
+
         const userId = req.user.id; 
-        const monthlyExpenses = await Expense.findAll({
+        const page = parseInt(req.query.page) || 1;
+        let limit = parseInt(req.query.limit) || 1; // Default limit
+        const offset = (page - 1) * limit;
+
+        // If the frontend sends a limit value greater than 1, use it
+        if (limit > 1) {
+            // Adjust the limit based on the screen size
+            const screenWidth = sreq.headers['screen-width'];
+            if (screenWidth >= 1200) {
+                limit = 10; // Large screens
+            } else if (screenWidth >= 700) {
+                limit = 5; // Medium screens
+            } else {
+                limit = 1; // Small screens
+            }
+        }
+        const screenWidth = req.headers['screen-width'];
+        console.log('Screen Width:', screenWidth);
+        console.log('Original Limit:', limit);
+
+        const { count, rows } = await Expense.findAndCountAll({
             where: {
                 userId,
                 type: 'expense',
@@ -146,15 +182,25 @@ exports.getMonthlyExpense = async (req, res) => {
                     [Op.gte]: thisMonth,
                 },
             },
+            limit: limit,
+            offset: offset
         });
+        console.log('Adjusted Limit:', limit);
+        const totalPages = Math.ceil(count / limit);
 
-        res.json(monthlyExpenses);
+        res.json({
+            expenses: rows,
+            pagination: {
+                totalExpenses: count,
+                totalPages: totalPages,
+                currentPage: limit
+            }
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'An error occurred while fetching monthly expenses' });
     }
 }
-
 
 exports.getYearlyExpense = async (req, res) => {
     try {
