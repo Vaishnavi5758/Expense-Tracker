@@ -130,17 +130,20 @@ forgotPasswordModal.style.display = "block";
 document.getElementById("closeModalBtn").addEventListener("click", function(){
     event.preventDefault();
     forgotPasswordModal.style.display ="none";
+   
 })
 
 resetPasswordBtn.onclick = async function(event) {
     event.preventDefault();
     const email = document.getElementById("forgotPasswordEmail").value;
     const obj = {email: email}
-
+    console.log(",,,,,,,,,,,,,,",email);
     try{
-        const response = await axios.post("http://localhost:3000/password/forgotPasswordMail",obj)
-        
+       await axios.post("http://localhost:3000/forgotPasswordMail",obj)
+        console.log(",,,,,,,,,,,,,,,done");
+      //  http://localhost:3000/signUp
     }catch(err){console.log(err)}
+   
     alert(`Link sent to ${email} to create new password`);
     forgotPasswordModal.style.display ="none";
  }

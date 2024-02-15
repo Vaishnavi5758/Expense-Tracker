@@ -10,6 +10,9 @@ require('dotenv').config();
 const expenseRoutes = require('./routes/expense');
 const signUpLoginRoutes = require('./routes/user');
 const purchaseRouter = require('./routes/purchase');
+const passwordRouter = require('./routes/password');
+const Resetpassword = require('./models/password-model');
+
 
 
 
@@ -32,6 +35,8 @@ app.use(express.json());
 app.use(expenseRoutes);
 app.use(signUpLoginRoutes);
 app.use(purchaseRouter);
+app.use( passwordRouter)
+
 
 
 
@@ -47,6 +52,9 @@ User.hasMany(Expense);
 Expense.belongsTo(User); 
 User.hasMany(Order);
 Order.belongsTo(User);
+User.hasMany(Resetpassword);
+Resetpassword.belongsTo(User);
+
 
 
 

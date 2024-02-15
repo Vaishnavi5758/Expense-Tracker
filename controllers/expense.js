@@ -5,6 +5,10 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const { Op } = require('sequelize');
+const AWS = require('aws-sdk');
+AWS.config.update({ region: 'ap-south-1' });
+const PDFDocument = require('pdfkit');
+
 
 
 
@@ -214,3 +218,132 @@ exports.getUserLeaderboard = async (req, res) => {
 };
 
 
+
+
+
+// function generateReport(expenses) {
+//   return new Promise((resolve, reject) => {
+//     const doc = new PDFDocument();
+//     const buffers = [];
+    
+//     // Listen for 'data' event to collect data chunks
+//     doc.on('data', chunk => buffers.push(chunk));
+    
+//     // Listen for 'end' event to finalize the document
+//     doc.on('end', () => {
+//       // Concatenate all data chunks into a single buffer
+//       const pdfData = Buffer.concat(buffers);
+//       // Resolve the promise with the generated PDF data
+//       resolve(pdfData);
+//     });
+
+//     // Add content to the PDF
+//     doc.text('Expense Report\n\n');
+//     expenses.forEach((expense, index) => {
+//       doc.text(`Expense ${index + 1}: ${expense.description} - $${expense.amount}`);
+//     });
+
+//     // Finalize the document
+//     doc.end();
+//   });
+// }
+
+
+
+
+
+
+// exports.downloadExpense = async (req, res) =>{
+//     try {
+//       // Assuming req.user.getExpenses() returns an array of expense objects
+//       const expenses = await req.user.getExpenses();
+//       const report = await generateReport(expenses); // Assuming generateReport returns a PDF buffer
+//       res.setHeader('Content-Type', 'application/pdf');
+  
+//      const BUCKET_NAME = process.env.BUCKET;
+//       const IAM_USER_KEY = process.env.IAM_USER_KEY;
+//       const IAM_USER_SECRET = process.env.IAM_USER_SECRET;
+  
+  
+//       // Upload report to S3
+//       const s3 = new AWS.S3({
+//         accessKeyId: IAM_USER_KEY,
+//          secretAccessKey: IAM_USER_SECRET,
+        
+//       });
+  
+//       const params = {
+//         Bucket: 'node-1234vaishnavipublic',
+//         Key: 'reportss.pdf', // or any other filename
+//         Body: report,
+//       //  ACL: 'public-read',
+//         ContentType: 'application/pdf'
+//       };
+  
+//       const data = await s3.upload(params).promise();
+  
+//       // Provide download link to the user
+//       const downloadLink = data.Location;
+//       res.json({ downloadLink });
+//     } catch (error) {
+//       console.error("Error generating report:", error);
+//       res.status(500).json({ error: "Internal server error" });
+//     }
+//   };
+  
+
+function uploadToS3(data, filename){
+    //get credentials, login to AWS and upload the file.
+    const BUCKET_NAME = 'node-1234vaishnavipublic';
+    const IAM_USER_KEY = process.env.IAM_USER_KEY;
+    const IAM_USER_SECRET = process.env.IAM_USER_SECRET;
+
+    const s3bucket = new AWS.S3({
+      accessKeyId: IAM_USER_KEY,
+      secretAccessKey: IAM_USER_SECRET,
+    })
+
+     //params Bucket, Key, Body as required by AWS S3
+    const params = {                               
+      Bucket: 'node-1234vaishnavipublic',
+      Key: filename,
+      Body: data,
+     // ACL: 'public-read'
+    }
+
+    // return promise instead direct return as uploading is an asynchronous task
+    return new Promise((resolve, reject)=>{
+      s3bucket.upload(params, async (err, s3response)=>{
+        try{
+          if(err) {
+            console.log("Error uploading file", err);
+            reject(err);
+          }else{
+            console.log('File uploaded successfully', s3response)
+            resolve(s3response.Location);
+          }
+        }catch(err){
+          console.log("Waiting to login in AWS for upload", err)
+        }
+     
+      })
+    })
+  }
+
+
+
+exports.downloadExpense = async (req, res) =>{
+    try{
+      const expenses = await req.user.getExpenses();
+      const stringifiedExpenses = JSON.stringify(expenses);
+      const filename = `expense${req.user.id}_${new Date()}.txt`;
+      const fileUrl = await uploadToS3(stringifiedExpenses, filename);
+
+      res.status(200).json({fileUrl: fileUrl, success:true, filename: filename});
+
+    }catch(err){
+      console.log("Error downloading expenses file", err);
+      res.status(500).json({error: 'Error downloading expenses'});
+    }
+
+  }

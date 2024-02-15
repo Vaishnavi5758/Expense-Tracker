@@ -25,6 +25,8 @@ router.get('/getUserInfo',authentication.authenticate, expenseController.getUser
 
 router.get('/showLeaderboard', authentication.authenticate, expenseController.getUserLeaderboard);
 
+router.get('/expense/download', authentication.authenticate, expenseController.downloadExpense);
+
 
 
 

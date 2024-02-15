@@ -45,6 +45,7 @@
                 <th>Type</th>
             </tr>
         </thead>
+        <button class="add-button" id="downloadBtn">Download File</button>
         <tbody id="expenseTableBody"></tbody>
     </table>
     <div id="totalExpense"></div>
@@ -105,6 +106,54 @@
 }
 
         getDailyExpense();
+
+//         document.getElementById("downloadBtn").addEventListener("click", async () => {
+//   try {
+//     const response = await axios.get('http://localhost:3000/expense/download', {
+//       headers: {
+//         "Authorization": token,
+//         "Content-Type":"application/pdf"        
+        
+
+//       },
+//       responseType: 'arraybuffer' // Specify responseType as 'arraybuffer' to receive binary data
+//     });
+
+//     // Create a blob from the response data
+//     const blob = new Blob([response.data], { type: 'application/pdf' });
+
+//     // Create a temporary link to trigger the download
+//     const url = window.URL.createObjectURL(blob);
+//     const link = document.createElement('a');
+//     link.href = url;
+//     link.setAttribute('download', 'report.pdf'); // Set the filename
+//     document.body.appendChild(link);
+
+//     // Trigger the download
+//     link.click();
+//   } catch (error) {
+//     console.error("Error downloading report:", error);
+//     // Handle error
+//   }
+// });
+
+        document.getElementById('downloadBtn').addEventListener('click', function download(){
+
+axios.get('http://localhost:3000/expense/download', {headers: {"Authorization": token}})
+      .then((response)=>{
+        console.log("RESPONSE", response)
+        if(response.status === 200){
+          //backend is sending a download link which on click opens new tab in browser and file starts downloading
+          const a = document.createElement('a');
+          a.href = response.data.fileUrl
+          a.download = `${response.data.filename}`;  //this will instruct browser to download the file named myexpense.csv
+          a.click();
+        }else{
+         console.log("Error downloading expense file, no response")
+        }
+      })
+})
+
     </script>
 </body>
 </html>

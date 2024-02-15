@@ -56,7 +56,7 @@ exports.login = async (req, res) => {
             throw new Error("Trouble matching input password and stored hash");
           else {
             if (result === true){
-              console.log("User Login Successful!");
+              console.log("Login Successful!");
              // const uniqueData = Date.now();
 
               return res.status(200).json({success: true, message: "User logged in successfully", token: generateAccessToken(existingUser.id, existingUser.userName)});

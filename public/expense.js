@@ -4,14 +4,14 @@ console.log(token);
 
 
 
-function parseJwt (token) {
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    return JSON.parse(jsonPayload);
-  }
+// function parseJwt (token) {
+//     var base64Url = token.split('.')[1];
+//     var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+//     var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+//         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+//     }).join(''));
+//     return JSON.parse(jsonPayload);
+//   }
   
 
 function submitForm(event) {
@@ -105,7 +105,6 @@ window.onload = function () {
 
 
   document.addEventListener('DOMContentLoaded', function() {
-    // Your code here
     document.getElementById('premiumbutton').onclick = async function(e) {
       e.preventDefault();
     
@@ -115,8 +114,8 @@ window.onload = function () {
 
     var options = {
       "key": response.data.key_id, 
-      "order_id": response.data.orderid, //for one time payment
-      // a handler function to handle the success payment
+      "order_id": response.data.orderid, 
+      // handler function to handle the success payment
       "handler": async function(response){
           try{
             await axios.post('http://localhost:3000/updatetransactionstatus',
