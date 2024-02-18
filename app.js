@@ -4,6 +4,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const sequelize = require('./utils/database');
 const cors = require('cors');
+const compression=require('compression');
 require('dotenv').config();
 
 
@@ -19,6 +20,7 @@ const Resetpassword = require('./models/password-model');
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+app.use(compression());
 
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
