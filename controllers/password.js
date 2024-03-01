@@ -65,7 +65,7 @@ exports.forgotPasswordMail = async(req, res) => {
             if (!user) return res.status(400).json({ status: "Fail", message: "Email not found" });
     
             const id = uuidv4();
-            const path = `http://localhost:3000/createNewPassword/${id}`;
+            const path =`http://localhost:3000/createNewPassword/${id}`;
 
             await Resetpassword.create({ id, userId: user.id, active: true });
     
@@ -89,16 +89,13 @@ exports.forgotPasswordMail = async(req, res) => {
         
             let response = {
                 body: {
-                    name : "CATCH your Expenses",
-                    intro: "Reset Password ",
-                    
-                        data : [
-                            {
-                                description:  `<a href="${path}">Click Here</a> to reset your password!`
-                            }
-                        ] },
-                    outro: "Looking forward to do more business"
+                    name: "CATCH your Expenses",
+                    intro: `Reset Password: <a href="${path}">Click Here</a>`, // Constructed HTML link
+                    outro: "Looking forward to doing more business"
                 }
+            
+            };
+            
             
         
             let mail = MailGenerator.generate(response)
@@ -129,7 +126,7 @@ exports.createNewPassword = async(req, res) =>{
   const createPasswordUUID = await Resetpassword.findOne({where:{id: req.params.id}})
   if(!createPasswordUUID)return res.status(400).json({status:"failed", message:"Invalid Link"})
   
-  const passwordPath = path.join(__dirname,'..','views', 'password.html');
+  const passwordPath = path.join(__dirname,'..','public', 'password.html');
   return res.status(200).sendFile(passwordPath);
 
   }catch(err){

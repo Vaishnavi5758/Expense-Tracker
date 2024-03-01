@@ -1,11 +1,13 @@
 const path = require('path');
 const express = require('express');
 const app = express();
+const dotenv=require('dotenv');
+dotenv.config();
+
 const bodyParser = require('body-parser');
 const sequelize = require('./utils/database');
 const cors = require('cors');
 const compression=require('compression');
-require('dotenv').config();
 
 
 const expenseRoutes = require('./routes/expense');

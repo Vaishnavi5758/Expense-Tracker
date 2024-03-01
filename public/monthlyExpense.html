@@ -66,7 +66,7 @@
         <span id="lastPageBtn" class="page-number"></span>
     </div>
 
-    <div id="totalExpense"></div>
+    <!-- <div id="totalExpense"></div> -->
 
     <script>
         const token = localStorage.getItem('token');
@@ -80,7 +80,7 @@ const screenWidth = window.innerWidth || document.documentElement.clientWidth ||
                 .then(function (response) {
                     console.log('Data:', response.data);
                     populateTable(response.data);
-                    calculateTotal(response.data);
+                   // calculateTotal(response.data);
                     renderPagination(response.data.pagination);
                 })
                 .catch(function (error) {
@@ -106,18 +106,18 @@ const screenWidth = window.innerWidth || document.documentElement.clientWidth ||
         }
 
         // Function to calculate total expense
-        function calculateTotal(data) {
-            if (Array.isArray(data)) {
-                var totalExpense = data.reduce(function (total, item) {
-                    return total + parseFloat(item.amount || 0); // Ensure to handle non-numeric values
-                }, 0);
+        // function calculateTotal(data) {
+        //     if (Array.isArray(data)) {
+        //         var totalExpense = data.reduce(function (total, item) {
+        //             return total + parseFloat(item.amount || 0); // Ensure to handle non-numeric values
+        //         }, 0);
 
-                var totalExpenseDisplay = document.getElementById('totalExpense');
-                totalExpenseDisplay.textContent = 'Total Expense: $' + totalExpense.toFixed(2);
-            } else {
-                console.error('Data is not an array.');
-            }
-        }
+        //         var totalExpenseDisplay = document.getElementById('totalExpense');
+        //         totalExpenseDisplay.textContent = 'Total Expense: $' + totalExpense.toFixed(2);
+        //     } else {
+        //         console.error('Data is not an array.');
+        //     }
+        // }
 
         // Function to render pagination buttons
         function renderPagination(pagination) {
@@ -163,9 +163,9 @@ const screenWidth = window.innerWidth || document.documentElement.clientWidth ||
             if (screenWidth >= 1200) {
                 return 10; // Large screens
             } else if (screenWidth >= 700) {
-                return 5; // Medium screens
+                return 7; // Medium screens
             } else {
-                return 1; // Small screens
+                return 5; // Small screens
             }
         }
        

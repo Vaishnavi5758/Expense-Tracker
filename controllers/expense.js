@@ -22,7 +22,7 @@ exports.AddExpenseToDB = async (req, res, next) => {
     const t = await sequelize.transaction();
     try {
         const { amount, description, type } = req.body;
-        const userId = req.user.id; // Assuming req.user contains the user details
+        const userId = req.user.id; //  req.user contains the user details
 
         const newExpense = await Expense.create({
             amount,
@@ -161,13 +161,13 @@ exports.getMonthlyExpense = async (req, res) => {
         // If the frontend sends a limit value greater than 1, use it
         if (limit > 1) {
             // Adjust the limit based on the screen size
-            const screenWidth = sreq.headers['screen-width'];
+            const screenWidth = req.headers['screen-width'];
             if (screenWidth >= 1200) {
                 limit = 10; // Large screens
             } else if (screenWidth >= 700) {
-                limit = 5; // Medium screens
+                limit = 7; // Medium screens
             } else {
-                limit = 1; // Small screens
+                limit = 5; // Small screens
             }
         }
         const screenWidth = req.headers['screen-width'];
@@ -179,13 +179,15 @@ exports.getMonthlyExpense = async (req, res) => {
                 userId,
                 type: 'expense',
                 createdAt: {
-                    [Op.gte]: thisMonth,
+                    [Op.gte]: thisMonth,//Op.gte is an operator used to construct a condition for a query, indicating "greater than or equal to
                 },
             },
             limit: limit,
             offset: offset
         });
-        console.log('Adjusted Limit:', limit);
+        console.log(' count:',  count);
+        console.log(' rows:',  rows);
+
         const totalPages = Math.ceil(count / limit);
 
         res.json({
@@ -193,7 +195,7 @@ exports.getMonthlyExpense = async (req, res) => {
             pagination: {
                 totalExpenses: count,
                 totalPages: totalPages,
-                currentPage: limit
+                currentPage: page
             }
         });
     } catch (error) {
@@ -263,80 +265,6 @@ exports.getUserLeaderboard = async (req, res) => {
   }
 };
 
-
-
-
-
-// function generateReport(expenses) {
-//   return new Promise((resolve, reject) => {
-//     const doc = new PDFDocument();
-//     const buffers = [];
-    
-//     // Listen for 'data' event to collect data chunks
-//     doc.on('data', chunk => buffers.push(chunk));
-    
-//     // Listen for 'end' event to finalize the document
-//     doc.on('end', () => {
-//       // Concatenate all data chunks into a single buffer
-//       const pdfData = Buffer.concat(buffers);
-//       // Resolve the promise with the generated PDF data
-//       resolve(pdfData);
-//     });
-
-//     // Add content to the PDF
-//     doc.text('Expense Report\n\n');
-//     expenses.forEach((expense, index) => {
-//       doc.text(`Expense ${index + 1}: ${expense.description} - $${expense.amount}`);
-//     });
-
-//     // Finalize the document
-//     doc.end();
-//   });
-// }
-
-
-
-
-
-
-// exports.downloadExpense = async (req, res) =>{
-//     try {
-//       // Assuming req.user.getExpenses() returns an array of expense objects
-//       const expenses = await req.user.getExpenses();
-//       const report = await generateReport(expenses); // Assuming generateReport returns a PDF buffer
-//       res.setHeader('Content-Type', 'application/pdf');
-  
-//      const BUCKET_NAME = process.env.BUCKET;
-//       const IAM_USER_KEY = process.env.IAM_USER_KEY;
-//       const IAM_USER_SECRET = process.env.IAM_USER_SECRET;
-  
-  
-//       // Upload report to S3
-//       const s3 = new AWS.S3({
-//         accessKeyId: IAM_USER_KEY,
-//          secretAccessKey: IAM_USER_SECRET,
-        
-//       });
-  
-//       const params = {
-//         Bucket: 'node-1234vaishnavipublic',
-//         Key: 'reportss.pdf', // or any other filename
-//         Body: report,
-//       //  ACL: 'public-read',
-//         ContentType: 'application/pdf'
-//       };
-  
-//       const data = await s3.upload(params).promise();
-  
-//       // Provide download link to the user
-//       const downloadLink = data.Location;
-//       res.json({ downloadLink });
-//     } catch (error) {
-//       console.error("Error generating report:", error);
-//       res.status(500).json({ error: "Internal server error" });
-//     }
-//   };
-  
 
 function uploadToS3(data, filename){
     //get credentials, login to AWS and upload the file.
